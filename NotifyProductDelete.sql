@@ -7,3 +7,11 @@ CREATE TRIGGER NotifyProductDelete
     VALUES(CONCAT('The product with a ProductID', OLD.ProductID, 'was deleted'), NOW());
 
 DELIMITER;
+
+------------------------------------
+
+CREATE TRIGGER UpdateAudit
+    AFTER INSERT
+    ON Orders FOR EACH ROW
+    INSERT INTO Audit(OrderDateTime)
+    VALUES(Current_timestamp);

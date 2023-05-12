@@ -18,4 +18,34 @@ CREATE PROCEDURE GetDiscount(OrderIDInput INT)
 END//
 
 DELIMITER ;
+----------------------------------------------------
+DELIMITER //
 
+CREATE PROCEDURE EvaluateProduct(IN product_id VARCHAR(10), OUT SoldItemsIn2020 INT, OUT SoldItemsIn2021 INT, OUT SoldItemsIn2022 INT)
+BEGIN
+SELECT SUM(Quantity) INTO SoldItemsIn2020 FROM Orders WHERE ProductID=product_id AND YEAR(Date)=2020;
+SELECT SUM(Quantity) INTO SoldItemsIn2021 FROM Orders WHERE ProductID=product_id AND YEAR(Date)=2021;
+SELECT SUM(Quantity) INTO SoldItemsIn2022 FROM Orders WHERE ProductID=product_id AND YEAR(Date)=2022;
+END //
+
+DELIMITER ;
+CALL EvaluateProduct('P1', @sold_items_2020, @sold_items_2021, @sold_items_2022);
+
+SELECT @sold_items_2020, @sold_items_2021, @sold_items_2022;
+
+------------------------------------------
+
+DELIMITER //
+CREATE PROCEDURE GetProfit(IN product_id VARCHAR(10), IN YearInput INT)
+BEGIN
+DECLARE profit DEC(7, 2) DEFAULT 0.0;
+DECLARE sold_quantity, buy_price, sell_price INT DEFAULT 0;
+SELECT SUM(Quantity) INTO sold_quantity FROM Orders WHERE ProductID = product_id AND YEAR(Date) = YearInput;
+SELECT BuyPrice INTO buy_price FROM Products WHERE ProductID = product_id;
+SELECT SellPrice INTO sell_price FROM Products WHERE ProductID = product_id;
+SET profit = (sell_price * sold_quantity) - (buy_price * sold_quantity);
+SELECT profit;
+END //
+
+DELIMITER ;
+CALL GetProfit('P1', 2020);
